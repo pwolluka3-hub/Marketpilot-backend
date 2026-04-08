@@ -1,8 +1,9 @@
 import { buildContextFromMemory } from '../services/memoryService';
 
 /**
- * Exposes memory service utilities to callers.
- * @returns {{buildContextFromMemory: function}} An object with `buildContextFromMemory`, a function that builds a conversation context from persisted memory.
+ * Exposes memory-related utilities from the memory service.
+ *
+ * @returns {Object} An object exposing the `buildContextFromMemory` function.
  */
 export function useMemory() {
   return { buildContextFromMemory };

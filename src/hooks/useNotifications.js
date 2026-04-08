@@ -1,8 +1,11 @@
 import { notifyUser } from '../services/notificationService';
 
 /**
- * Provides access to a `notifyUser` function for sending user notifications.
- * @returns {{ notifyUser: Function }} An object containing the `notifyUser` function.
+ * Provide access to the application's notification function for components.
+ *
+ * @returns {Object} An object exposing notification utilities.
+ * @property {Function} notifyUser - Sends a notification to the user.
+ */
 export function useNotifications() {
   return { notifyUser };
 }

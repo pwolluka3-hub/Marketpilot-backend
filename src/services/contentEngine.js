@@ -3,19 +3,18 @@ import { puterImage } from './puterService';
 import { validateImageDescription } from './mediaValidator';
 
 /**
- * Orchestrates an AI-driven content workflow for a given idea and brand context.
+ * Orchestrates generation of a social media strategy, post caption, and a validated image for a given idea and brand context.
  *
- * @param {Object} params - Input parameters.
- * @param {string} params.idea - The content idea or prompt to generate strategy, caption, and image for.
- * @param {string} params.brandContext - Brand-specific context to include in the system prompt.
- * @param {string} params.model - Identifier of the AI model to use for text generation.
- * @returns {{strategy: string, caption: string, image: any, validation: any, approved: boolean}}
- *   An object containing:
- *   - `strategy`: the generated content/marketing strategy text.
- *   - `caption`: the generated post text for the idea.
- *   - `image`: the result returned from the image-generation service.
- *   - `validation`: the validation result for the generated image description.
- *   - `approved`: `true` if `validation` contains the substring `'PASS'`, `false` otherwise.
+ * @param {Object} options - Input options.
+ * @param {string} options.idea - The creative idea or prompt used to generate the strategy, caption, and image.
+ * @param {string} options.brandContext - Brand-specific context or guidelines to tailor the generated content.
+ * @param {string|Object} options.model - Identifier or configuration for the AI text-generation model to use.
+ * @returns {{ strategy: string, caption: string, image: any, validation: any, approved: boolean }} An object containing:
+ *  - strategy: Generated strategy text.
+ *  - caption: Generated post text.
+ *  - image: Generated image result (format depends on image service).
+ *  - validation: Result from the image validation step.
+ *  - approved: `true` if the validation result indicates a pass, `false` otherwise.
  */
 export async function runPipeline({ idea, brandContext, model }) {
   const systemPrompt = `You are an elite social media strategist, content creator, and growth expert. Brand context: ${brandContext}.`;

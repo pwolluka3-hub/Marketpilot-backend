@@ -3,13 +3,11 @@ import NeonButton from '../components/ui/NeonButton';
 import { kvSet } from '../services/puterService';
 
 /**
- * Render an onboarding UI that tracks progress through four steps.
+ * Render a four-step onboarding UI that displays the current step and provides controls to advance or mark onboarding complete.
  *
- * When the "Next" button is clicked the current step advances (capped at 4).
- * When the "Mark Complete" button is clicked the component stores `onboarding_complete = true` via `kvSet`
- * and advances to the final step.
+ * The component manages internal `step` state (1–4). Clicking "Next" increments the step up to 4. Clicking "Mark Complete" persists an `onboarding_complete` flag via `kvSet` and then sets the step to 4.
  *
- * @returns {JSX.Element} The onboarding React element containing the step header, description, and action buttons.
+ * @returns {JSX.Element} The onboarding interface showing the current step, a description, a "Next" button, and a "Mark Complete" button.
  */
 export default function Onboarding() {
   const [step, setStep] = useState(1);

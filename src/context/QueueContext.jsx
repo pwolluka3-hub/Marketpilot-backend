@@ -3,10 +3,11 @@ import { createContext, useContext, useMemo, useState } from 'react';
 const QueueContext = createContext(null);
 
 /**
- * Provides a context for managing a FIFO queue to descendant components.
- * @param {object} props
- * @param {import('react').ReactNode} props.children - Child elements that will have access to the queue context.
- * @returns {JSX.Element} A provider element that supplies queue state and queue-manipulation functions to descendants.
+ * Provides queue state and updater functions to descendant components via React context.
+ *
+ * @param {Object} props
+ * @param {import('react').ReactNode} props.children - Child elements that will receive the queue context.
+ * @returns {import('react').ReactElement} A context provider supplying `{ queue, enqueue, setQueue }` to its descendants.
  */
 export function QueueProvider({ children }) {
   const [queue, setQueue] = useState([]);

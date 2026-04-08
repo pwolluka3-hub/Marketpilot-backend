@@ -1,10 +1,10 @@
 /**
- * Renders a glass-styled content card with a heading and paragraph.
+ * Render a presentational card that displays a title and body.
  *
- * @param {{title: string, body: string}} props
- * @param {string} props.title - Heading text displayed inside an <h3>.
- * @param {string} props.body - Paragraph text displayed inside a <p>.
- * @returns {JSX.Element} The article element containing the title and body.
+ * @param {Object} props - Component props.
+ * @param {string} props.title - Heading text shown at the top of the card.
+ * @param {string} props.body - Paragraph text shown below the title.
+ * @returns {JSX.Element} The rendered article element with class "glass-card".
  */
 export default function ContentCard({ title, body }) {
   return (
