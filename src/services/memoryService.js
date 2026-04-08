@@ -3,9 +3,9 @@ import { fsRead, fsWrite } from './puterService';
 const ROOT = '/NexusAI';
 
 /**
- * Persist the given brand kit to the project's brand/brandkit.json file.
- * @param {object} brandKit - The brand kit data to save.
- * @returns {*} The result of the write operation.
+ * Save the brand kit to the project's brand/brandkit.json file.
+ * @param {object} brandKit - Brand kit data to persist.
+ * @returns {*} The result of the file write operation.
  */
 export async function saveBrandKit(brandKit) {
   return fsWrite(`${ROOT}/brand/brandkit.json`, brandKit);

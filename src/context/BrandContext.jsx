@@ -4,10 +4,7 @@ import { loadBrandKit, saveBrandKit } from '../services/memoryService';
 const BrandContext = createContext(null);
 
 /**
- * Provides BrandContext to descendants and manages loading and persisting the brand kit.
- *
- * Loads the persisted brand kit on mount and supplies `brandKit` along with `updateBrandKit(next)`
- * which updates local state and persists the new kit.
+ * Wraps children with BrandContext, exposing the current brand kit and an updater that persists changes.
  *
  * @param {{ children: import('react').ReactNode }} props - React children to render inside the provider.
  * @returns {JSX.Element} The BrandContext provider element.

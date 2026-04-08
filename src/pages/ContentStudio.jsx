@@ -5,12 +5,11 @@ import NeonButton from '../components/ui/NeonButton';
 import { useAI } from '../hooks/useAI';
 
 /**
- * Render the Content Studio page that generates AI captions and provides a human approval control.
+ * Render the Content Studio page that lets a user generate an AI caption and approve it.
  *
- * Uses the `useAI` hook to request a caption for a fixed idea and brand context, displays a "Generate"
- * button that reflects loading state, shows a `ContentCard` with the generated `caption` when available,
- * and renders an `ApprovalGate` disabled until a result exists (its approve action currently alerts).
- * @returns {JSX.Element} The page UI containing the generate button, conditional generated-content card, and approval gate.
+ * Renders a generate button that reflects loading state, conditionally displays a generated-content card
+ * when a caption is available, and provides an approval control that is disabled until a result exists.
+ * @returns {JSX.Element} The page UI containing a generate button, optional generated-content card, and an approval gate.
  */
 export default function ContentStudio() {
   const [result, setResult] = useState(null);

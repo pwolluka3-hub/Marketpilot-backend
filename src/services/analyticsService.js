@@ -1,8 +1,10 @@
 import { kvGet, fsWrite } from './puterService';
 
 /**
- * Retrieves social analytics from Ayrshare using the stored API key and saves the result to /NexusAI/analytics/performance.json.
- * @returns {Object|null} Parsed analytics JSON when a stored `ayrshare_key` is available; `null` if the key is missing.
+ * Retrieves social analytics from Ayrshare using the stored API key.
+ *
+ * Writes the parsed analytics JSON to /NexusAI/analytics/performance.json.
+ * @returns {Object|null} Parsed analytics JSON if a stored `ayrshare_key` exists; `null` if the key is missing.
  */
 export async function fetchAnalytics() {
   const key = await kvGet('ayrshare_key');

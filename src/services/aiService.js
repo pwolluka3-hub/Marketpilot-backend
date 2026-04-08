@@ -29,13 +29,13 @@ export async function aiCallWithRetry(fn, maxRetries = 3) {
 }
 
 /**
- * Generate a chat/completion response from the configured model using a system and user prompt.
+ * Generates a chat/completion response from the configured model using a system and user prompt.
  *
  * @param {Object} params - Input parameters.
  * @param {string} params.systemPrompt - The system prompt guiding model behavior.
  * @param {string} params.userPrompt - The user prompt to be sent to the model.
  * @param {string} [params.model='gpt-4o'] - Model identifier to use for the request.
- * @returns {any} The response returned by the AI service call, or `null` if all retry attempts fail without throwing.
+ * @returns {any} The AI service response, or `null` if all retry attempts are exhausted due to rate-limit errors.
  */
 export async function generateWithModel({ systemPrompt, userPrompt, model = 'gpt-4o' }) {
   return aiCallWithRetry(() =>
