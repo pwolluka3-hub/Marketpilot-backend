@@ -3,35 +3,36 @@ import { fsRead, fsWrite } from './puterService';
 const ROOT = '/NexusAI';
 
 /**
- * Persist a brand kit object to the configured brand storage location.
- * @param {Object} brandKit - JSON-serializable object containing brand assets and metadata.
- * @returns {*} The result of the write operation returned by `fsWrite`.
+ * Persist the given brand kit to the project's brand/brandkit.json file.
+ * @param {object} brandKit - The brand kit data to save.
+ * @returns {*} The result of the write operation.
  */
 export async function saveBrandKit(brandKit) {
   return fsWrite(`${ROOT}/brand/brandkit.json`, brandKit);
 }
 
 /**
- * Load the stored brand kit JSON from the service root.
- *
- * @returns {any} The parsed brand kit object from /NexusAI/brand/brandkit.json.
+ * Load the brand kit configuration from storage.
+ * @returns {Object} The brand kit object parsed from /NexusAI/brand/brandkit.json.
  */
 export async function loadBrandKit() {
   return fsRead(`${ROOT}/brand/brandkit.json`);
 }
 
 /**
- * Persist a draft object to the drafts directory using the draft's `id` as the filename.
- * @param {Object} draft - Draft data; must include an `id` property used to name the file (`<id>.json`).
- * @returns {*} The value returned by `fsWrite`.
+ * Persist a draft object to the drafts directory using its `id` as the filename.
+ *
+ * @param {Object} draft - Draft object that must include an `id` property; the file will be saved to `content/drafts/{id}.json`.
+ * @returns {any} The result of writing the draft file (value returned by `fsWrite`).
  */
 export async function saveDraft(draft) {
   return fsWrite(`${ROOT}/content/drafts/${draft.id}.json`, draft);
 }
 
 /**
- * Builds an in-memory context object by loading the stored brand kit and chat history summary.
- * @returns {{brand: any, history: any}} An object with `brand` containing the parsed brand kit and `history` containing the chat history summary.
+ * Construct a context object by loading the persisted brand kit and chat-history summary from disk.
+ *
+ * @returns {{brand: any, history: any}} An object with `brand` containing the contents of `brand/brandkit.json` and `history` containing the contents of `system/chat-history/summary.json`.
  */
 export async function buildContextFromMemory() {
   const [brand, history] = await Promise.all([

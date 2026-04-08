@@ -3,17 +3,15 @@ import { puterText } from './puterService';
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Execute `fn`, retrying on rate-related errors using exponential backoff.
+ * Attempt to execute `fn` up to `maxRetries` times, retrying on errors that indicate rate limiting.
  *
- * Calls the provided async function and if it throws an error whose message
- * contains "rate" (case-insensitive), retries up to `maxRetries` times with
- * delays of 1000 * 2**attempt milliseconds between attempts. Non-rate errors
- * are rethrown immediately.
+ * Retries use exponential backoff (1s, 2s, 4s, ...) between attempts when the thrown error's message
+ * contains the substring "rate" (case-insensitive). Non-rate-related errors are rethrown immediately.
  *
- * @param {Function} fn - An async function to execute on each attempt.
- * @param {number} [maxRetries=3] - Maximum number of attempts before giving up.
- * @returns {*} The successful result returned by `fn`, or `null` if no attempt succeeded.
- * @throws {*} Rethrows the caught error when it is not rate-related or when retries are exhausted.
+ * @param {Function} fn - A function that returns a value or a promise; its resolved value is returned on success.
+ * @param {number} [maxRetries=3] - Maximum number of attempts to run `fn`.
+ * @returns {*} The value returned by `fn` if an attempt succeeds, or `null` if all retryable attempts fail.
+ * @throws {Error} Any error thrown by `fn` that is not identified as a rate-limit error.
  */
 export async function aiCallWithRetry(fn, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i += 1) {
@@ -31,11 +29,13 @@ export async function aiCallWithRetry(fn, maxRetries = 3) {
 }
 
 /**
- * Generate text from the specified model using provided system and user prompts.
- * @param {string} systemPrompt - The system-level instruction or context sent to the model.
- * @param {string} userPrompt - The user-facing prompt to be processed by the model.
- * @param {string} [model='gpt-4o'] - The model identifier to use for generation.
- * @returns {Object|null} The generation result returned by the model, or `null` if all retry attempts were exhausted.
+ * Generate a chat/completion response from the configured model using a system and user prompt.
+ *
+ * @param {Object} params - Input parameters.
+ * @param {string} params.systemPrompt - The system prompt guiding model behavior.
+ * @param {string} params.userPrompt - The user prompt to be sent to the model.
+ * @param {string} [params.model='gpt-4o'] - Model identifier to use for the request.
+ * @returns {any} The response returned by the AI service call, or `null` if all retry attempts fail without throwing.
  */
 export async function generateWithModel({ systemPrompt, userPrompt, model = 'gpt-4o' }) {
   return aiCallWithRetry(() =>

@@ -20,13 +20,13 @@ const AIChat = lazy(() => import('./pages/AIChat'));
 const Settings = lazy(() => import('./pages/Settings'));
 
 /**
- * Application root component that sets up global providers, the main layout, and client-side routes.
+ * Root React component that composes top-level providers, layout, and client-side routes.
  *
- * Renders ErrorBoundary and a nested provider hierarchy (authentication, brand, queue), the app layout
- * (Sidebar, main content area, BottomNav), and route definitions for the primary pages. Unmatched paths
- * are redirected to `/onboarding`. Route components are loaded within a Suspense boundary using a loading fallback.
+ * Renders an ErrorBoundary and nests AuthProvider, BrandProvider, and QueueProvider around
+ * the app layout which includes Sidebar, a main content area with Suspense-wrapped route
+ * views, and BottomNav. Unmatched routes redirect to `/onboarding`.
  *
- * @returns {JSX.Element} The root React element containing providers, layout, and routed pages.
+ * @returns {JSX.Element} The root React element containing providers, layout, and route definitions.
  */
 export default function App() {
   return (

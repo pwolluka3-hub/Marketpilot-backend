@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 
 /**
- * Renders a fixed bottom navigation bar with links to the dashboard, content creation, and calendar.
- * @returns {JSX.Element} A nav element fixed to the bottom of the viewport containing links labeled "Home", "Create", and "Calendar".
+ * Renders a bottom-fixed navigation bar with links to Home, Create, and Calendar.
+ *
+ * The bar is styled with the `glass-card` class and fixed to the bottom of the viewport.
+ * @returns {JSX.Element} A navigation element containing links to `/dashboard`, `/content`, and `/calendar`.
  */
 export default function BottomNav() {
   return (

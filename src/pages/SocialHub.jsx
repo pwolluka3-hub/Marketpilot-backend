@@ -1,9 +1,6 @@
 /**
- * Display a simple hub card indicating Ayrshare connection status.
- *
- * Renders a div with the CSS class "glass-card" containing the text "Ayrshare connection status hub."
- *
- * @returns {JSX.Element} A div element representing the social hub card.
+ * Render a card showing Ayrshare connection status.
+ * @returns {JSX.Element} A div with className "glass-card" containing the text "Ayrshare connection status hub."
  */
 export default function SocialHub() {
   return <div className="glass-card">Ayrshare connection status hub.</div>;

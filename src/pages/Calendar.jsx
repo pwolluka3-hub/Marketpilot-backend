@@ -1,5 +1,5 @@
 /**
- * Renders a placeholder calendar card for a drag-to-reschedule UI.
+ * Render a placeholder calendar view for drag-to-reschedule UI.
  *
  * @returns {JSX.Element} A div with class "glass-card" containing placeholder text.
  */

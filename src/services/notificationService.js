@@ -1,10 +1,9 @@
 /**
- * Attempt to display a browser notification with the provided title and body.
+ * Show a browser notification with the given title and body when notifications are supported and permission is granted.
  *
- * If the Notifications API is available and permission is `"default"`, the function requests permission;
- * it creates a notification only when permission is `"granted"`. Does nothing if the API is unsupported or permission is not granted.
+ * If permission is "default", the user will be prompted. No action is taken when notifications are unsupported or permission is denied.
  * @param {string} title - The notification title.
- * @param {string} body - The notification body text.
+ * @param {string} [body] - The notification body text.
  */
 export async function notifyUser(title, body) {
   if ('Notification' in window) {

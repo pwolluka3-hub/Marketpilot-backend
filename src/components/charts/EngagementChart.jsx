@@ -1,11 +1,9 @@
 /**
- * Render a simple card that displays the number of engagement points.
+ * Render a simple card showing the count of engagement points.
  *
- * If `data` is an array, the displayed count is `data.length`; otherwise the count is `0`.
- *
- * @param {Object} props - Component props.
- * @param {Array<any>} props.data - Optional array of engagement items used to compute the count.
- * @returns {JSX.Element} A `div` with class `"glass-card"` containing the text "Engagement points: N".
+ * @param {{data: any}} props
+ * @param {any} props.data - The engagement data; when an array, its length is used as the displayed count. Non-array values are treated as no points.
+ * @returns {JSX.Element} A div with class "glass-card" that displays "Engagement points: N".
  */
 export default function EngagementChart({ data }) {
   return <div className="glass-card">Engagement points: {Array.isArray(data) ? data.length : 0}</div>;

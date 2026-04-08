@@ -4,13 +4,9 @@ import { puterAuth } from '../services/puterService';
 const AuthContext = createContext(null);
 
 /**
- * Provides authentication state and actions to descendant components.
- *
- * Exposes a context value with the current `user` and a `signIn` function that updates `user`.
- *
- * @param {{ children: React.ReactNode }} props - Component props.
- * @param {React.ReactNode} props.children - Children to render inside the provider.
- * @returns {JSX.Element} A React context provider that supplies `{ user, signIn }` to descendants.
+ * Provides authentication context (current user and sign-in action) to descendant components.
+ * @param {{ children: React.ReactNode }} props - Children to render inside the provider.
+ * @returns {JSX.Element} A context provider that supplies `{ user, signIn }` to descendants.
  */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);

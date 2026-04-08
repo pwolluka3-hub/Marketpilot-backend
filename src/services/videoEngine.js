@@ -1,14 +1,12 @@
 /**
- * Create a WebM video Blob by rendering a sequence of image URLs onto a canvas.
+ * Generates a WebM video by drawing a sequence of image URLs onto an offscreen canvas and recording the canvas output.
  *
- * Renders each provided image scaled to the specified canvas dimensions, holds each frame for approximately 1200 milliseconds, captures the canvas as a media stream at the given framerate, and returns a Blob containing the recorded WebM video.
- *
- * @param {Object} params - Function options.
- * @param {string[]} [params.images=[]] - Array of image URLs to render as sequential frames.
- * @param {number} [params.width=1080] - Canvas width in pixels.
- * @param {number} [params.height=1920] - Canvas height in pixels.
- * @param {number} [params.fps=30] - Capture framerate (frames per second) for the recorded stream.
- * @returns {Blob} A Blob containing the recorded video in `video/webm` format.
+ * @param {Object} options - Configuration options.
+ * @param {string[]} [options.images=[]] - Ordered array of image URLs or data URIs to include as frames; each image is drawn to fill the canvas and displayed for approximately 1200ms.
+ * @param {number} [options.width=1080] - Canvas width in pixels.
+ * @param {number} [options.height=1920] - Canvas height in pixels.
+ * @param {number} [options.fps=30] - Frame rate used when capturing the canvas stream.
+ * @returns {Promise<Blob>} A Promise that resolves to a Blob containing the recorded video in WebM format.
  */
 export async function createStoryboardVideo({ images = [], width = 1080, height = 1920, fps = 30 }) {
   const canvas = document.createElement('canvas');

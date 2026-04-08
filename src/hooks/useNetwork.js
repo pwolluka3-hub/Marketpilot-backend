@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
 /**
- * React hook that provides the current browser network connectivity status.
+ * Tracks whether the browser is currently online.
  *
- * The returned value updates when the browser fires `online` or `offline` events.
+ * Subscribes to window `online` and `offline` events and updates the returned value when network status changes.
  * @returns {boolean} `true` if the browser is online, `false` otherwise.
  */
 export function useNetwork() {
