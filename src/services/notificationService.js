@@ -1,8 +1,9 @@
 /**
- * Attempt to display a browser notification with the provided title and body.
+ * Conditionally displays a browser notification using the Web Notifications API.
  *
- * If the Notifications API is available and permission is `"default"`, the function requests permission;
- * it creates a notification only when permission is `"granted"`. Does nothing if the API is unsupported or permission is not granted.
+ * Prompts the user for permission when the permission state is `"default"`, and
+ * creates a notification only if permission is `"granted"`. Does nothing if the
+ * Notifications API is unavailable or permission is not granted.
  * @param {string} title - The notification title.
  * @param {string} body - The notification body text.
  */

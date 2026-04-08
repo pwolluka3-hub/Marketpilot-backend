@@ -15,12 +15,10 @@ const defaultBrand = {
 };
 
 /**
- * Render the current brand kit as formatted JSON and provide a button that saves the default brand kit into context.
+ * Render the Brand Kit page showing the current brand configuration and a control to persist the default brand.
  *
- * Displays the active `brandKit` from BrandContext (or `defaultBrand` when absent) and a `NeonButton` which, when clicked,
- * sets the context value to `defaultBrand`.
- *
- * @returns {JSX.Element} A container with a preformatted JSON view of the brand kit and a save button.
+ * Displays a glass-card containing a pretty-printed JSON representation of the active `brandKit` (falls back to `defaultBrand` when none is present) and a button that replaces the context brand kit with `defaultBrand` when clicked.
+ * @returns {JSX.Element} The BrandKit page UI.
  */
 export default function BrandKit() {
   const { brandKit, updateBrandKit } = useBrandContext();

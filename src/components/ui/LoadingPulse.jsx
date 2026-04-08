@@ -1,6 +1,7 @@
 /**
- * Render a simple loading placeholder styled as a glass card.
- * @returns {JSX.Element} A div with class "glass-card" containing the text "Loading...".
+ * Renders a glass-styled card that displays a loading message.
+ *
+ * @returns {JSX.Element} A div with `className` "glass-card" containing the text "Loading...".
  */
 export default function LoadingPulse() {
   return <div className="glass-card">Loading...</div>;

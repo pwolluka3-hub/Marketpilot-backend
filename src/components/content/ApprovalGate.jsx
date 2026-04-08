@@ -1,12 +1,11 @@
 import NeonButton from '../ui/NeonButton';
 
 /**
- * Renders an "Approve & Continue" button that triggers the provided approval handler when clicked.
+ * Render an "Approve & Continue" NeonButton wired to the provided handler and disabled state.
  *
- * @param {Object} props - Component props.
- * @param {Function} props.onApprove - Click handler invoked when the button is clicked.
- * @param {boolean} props.disabled - If true, the button is disabled.
- * @returns {JSX.Element} The rendered NeonButton element.
+ * @param {Function} onApprove - Callback invoked when the button is clicked.
+ * @param {boolean} disabled - If `true`, the button is disabled and not clickable.
+ * @returns {JSX.Element} The `NeonButton` element labeled "Approve & Continue".
  */
 export default function ApprovalGate({ onApprove, disabled }) {
   return <NeonButton disabled={disabled} onClick={onApprove}>Approve & Continue</NeonButton>;

@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 
 /**
- * Renders a fixed bottom navigation bar with links to the dashboard, content creation, and calendar.
- * @returns {JSX.Element} A nav element fixed to the bottom of the viewport containing links labeled "Home", "Create", and "Calendar".
+ * Renders a fixed-position bottom navigation bar with links to the main app sections.
+ *
+ * @returns {JSX.Element} A navigation element fixed to the bottom of the viewport containing links labeled "Home" ("/dashboard"), "Create" ("/content"), and "Calendar" ("/calendar").
  */
 export default function BottomNav() {
   return (

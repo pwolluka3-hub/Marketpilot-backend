@@ -1,9 +1,10 @@
 import EngagementChart from '../components/charts/EngagementChart';
 
 /**
- * Render the Analytics page containing the engagement chart.
+ * Render the analytics page containing the engagement chart.
  *
- * @returns {JSX.Element} The Analytics page element (renders EngagementChart with an empty data array).
+ * Renders an EngagementChart component and supplies it an empty data array.
+ * @returns {JSX.Element} The analytics page element.
  */
 export default function Analytics() {
   return <EngagementChart data={[]} />;
