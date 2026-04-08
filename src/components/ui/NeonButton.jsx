@@ -1,5 +1,5 @@
 /**
- * Render a button element styled with the "neon-button" class.
+ * Renders a button element with the "neon-button" CSS class.
  *
  * Forces `type="button"` and forwards all provided props to the underlying `<button>`.
  * @param {object} props - HTML attributes and event handlers to apply to the button.

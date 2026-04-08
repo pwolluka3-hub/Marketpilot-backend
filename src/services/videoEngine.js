@@ -1,10 +1,9 @@
 /**
- * Create a WebM video Blob by rendering a sequence of image URLs onto a canvas.
+ * Render a sequence of image URLs onto a canvas and record the result as a WebM video Blob.
  *
- * Renders each provided image scaled to the specified canvas dimensions, holds each frame for approximately 1200 milliseconds, captures the canvas as a media stream at the given framerate, and returns a Blob containing the recorded WebM video.
- *
- * @param {Object} params - Function options.
- * @param {string[]} [params.images=[]] - Array of image URLs to render as sequential frames.
+ * Each image is drawn scaled to the specified canvas dimensions and captured at the given framerate.
+ * @param {Object} params - Options object.
+ * @param {string[]} [params.images=[]] - Image URLs to render as sequential frames.
  * @param {number} [params.width=1080] - Canvas width in pixels.
  * @param {number} [params.height=1920] - Canvas height in pixels.
  * @param {number} [params.fps=30] - Capture framerate (frames per second) for the recorded stream.

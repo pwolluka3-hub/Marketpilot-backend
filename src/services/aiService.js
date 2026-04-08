@@ -31,11 +31,12 @@ export async function aiCallWithRetry(fn, maxRetries = 3) {
 }
 
 /**
- * Generate text from the specified model using provided system and user prompts.
- * @param {string} systemPrompt - The system-level instruction or context sent to the model.
- * @param {string} userPrompt - The user-facing prompt to be processed by the model.
- * @param {string} [model='gpt-4o'] - The model identifier to use for generation.
- * @returns {Object|null} The generation result returned by the model, or `null` if all retry attempts were exhausted.
+ * Generate text with the specified model using the provided system and user prompts.
+ * @param {Object} params - Input options.
+ * @param {string} params.systemPrompt - System-level instruction or context for the model.
+ * @param {string} params.userPrompt - User-facing prompt to be processed by the model.
+ * @param {string} [params.model='gpt-4o'] - Model identifier to use for generation.
+ * @returns {Object|null} The model's generation result, or `null` if all retry attempts were exhausted.
  */
 export async function generateWithModel({ systemPrompt, userPrompt, model = 'gpt-4o' }) {
   return aiCallWithRetry(() =>
