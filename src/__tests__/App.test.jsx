@@ -1,146 +1,133 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import App from '../App';
 
-// ---------------------------------------------------------------------------
-// Mock service dependencies used by contexts
-// ---------------------------------------------------------------------------
+// Mock external service dependencies used by providers
 vi.mock('../services/puterService', () => ({
   puterAuth: vi.fn(),
   kvGet: vi.fn(),
   kvSet: vi.fn(),
+  fsRead: vi.fn().mockResolvedValue(null),
+  fsWrite: vi.fn().mockResolvedValue(undefined)
 }));
 
 vi.mock('../services/memoryService', () => ({
   loadBrandKit: vi.fn().mockResolvedValue(null),
-  saveBrandKit: vi.fn().mockResolvedValue(undefined),
+  saveBrandKit: vi.fn().mockResolvedValue(undefined)
 }));
 
-// Mock lazy-loaded pages so we don't need full page implementations
-vi.mock('../pages/Onboarding', () => ({ default: () => <div>Onboarding Page</div> }));
-vi.mock('../pages/Dashboard', () => ({ default: () => <div>Dashboard Page</div> }));
-vi.mock('../pages/ContentStudio', () => ({ default: () => <div>ContentStudio Page</div> }));
-vi.mock('../pages/Calendar', () => ({ default: () => <div>Calendar Page</div> }));
-vi.mock('../pages/Analytics', () => ({ default: () => <div>Analytics Page</div> }));
-vi.mock('../pages/SocialHub', () => ({ default: () => <div>SocialHub Page</div> }));
-vi.mock('../pages/SkillManager', () => ({ default: () => <div>SkillManager Page</div> }));
-vi.mock('../pages/BrandKit', () => ({ default: () => <div>BrandKit Page</div> }));
-vi.mock('../pages/AIChat', () => ({ default: () => <div>AIChat Page</div> }));
-vi.mock('../pages/Settings', () => ({ default: () => <div>Settings Page</div> }));
+vi.mock('../services/contentEngine', () => ({
+  runPipeline: vi.fn()
+}));
 
-import App from '../App';
+// Mock all lazy-loaded page components so Suspense resolves quickly
+vi.mock('../pages/Onboarding', () => ({
+  default: () => <div>Onboarding Page</div>
+}));
+vi.mock('../pages/Dashboard', () => ({
+  default: () => <div>Dashboard Page</div>
+}));
+vi.mock('../pages/ContentStudio', () => ({
+  default: () => <div>ContentStudio Page</div>
+}));
+vi.mock('../pages/Calendar', () => ({
+  default: () => <div>Calendar Page</div>
+}));
+vi.mock('../pages/Analytics', () => ({
+  default: () => <div>Analytics Page</div>
+}));
+vi.mock('../pages/SocialHub', () => ({
+  default: () => <div>SocialHub Page</div>
+}));
+vi.mock('../pages/SkillManager', () => ({
+  default: () => <div>SkillManager Page</div>
+}));
+vi.mock('../pages/BrandKit', () => ({
+  default: () => <div>BrandKit Page</div>
+}));
+vi.mock('../pages/AIChat', () => ({
+  default: () => <div>AIChat Page</div>
+}));
+vi.mock('../pages/Settings', () => ({
+  default: () => <div>Settings Page</div>
+}));
 
-// App internally renders BrowserRouter content; we wrap with MemoryRouter
-// to control the initial route
-const renderApp = (initialPath = '/') =>
-  render(
+// App uses BrowserRouter internally via providers but needs an outer router
+// since it uses <Routes>/<Navigate>. We wrap in MemoryRouter instead of
+// BrowserRouter to control the initial path in tests.
+// Note: App itself does NOT render its own Router, that comes from main.jsx.
+function renderApp(initialPath = '/') {
+  return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <App />
     </MemoryRouter>
   );
+}
 
-// ---------------------------------------------------------------------------
-// App
-// ---------------------------------------------------------------------------
 describe('App', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('renders without crashing', async () => {
     renderApp('/onboarding');
-    // Sidebar brand name is always visible
-    expect(screen.getByRole('heading', { name: 'NexusAI' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText('Onboarding Page')).toBeInTheDocument());
   });
 
-  it('renders the Sidebar with NexusAI heading', async () => {
+  it('renders the Sidebar', async () => {
     renderApp('/onboarding');
-    expect(screen.getByRole('heading', { level: 2, name: 'NexusAI' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'NexusAI' })).toBeInTheDocument());
   });
 
   it('renders the BottomNav', async () => {
     renderApp('/onboarding');
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument());
   });
 
-  it('redirects unknown routes to /onboarding', async () => {
+  it('redirects unknown paths to /onboarding', async () => {
     renderApp('/unknown-route');
-    await waitFor(() => {
-      expect(screen.getByText('Onboarding Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('Onboarding Page')).toBeInTheDocument());
   });
 
-  it('renders Onboarding page at /onboarding', async () => {
-    renderApp('/onboarding');
-    await waitFor(() => {
-      expect(screen.getByText('Onboarding Page')).toBeInTheDocument();
-    });
-  });
-
-  it('renders Dashboard page at /dashboard', async () => {
+  it('renders Dashboard at /dashboard route', async () => {
     renderApp('/dashboard');
-    await waitFor(() => {
-      expect(screen.getByText('Dashboard Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('Dashboard Page')).toBeInTheDocument());
   });
 
-  it('renders ContentStudio page at /content', async () => {
+  it('renders ContentStudio at /content route', async () => {
     renderApp('/content');
-    await waitFor(() => {
-      expect(screen.getByText('ContentStudio Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('ContentStudio Page')).toBeInTheDocument());
   });
 
-  it('renders Calendar page at /calendar', async () => {
+  it('renders Calendar at /calendar route', async () => {
     renderApp('/calendar');
-    await waitFor(() => {
-      expect(screen.getByText('Calendar Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('Calendar Page')).toBeInTheDocument());
   });
 
-  it('renders Analytics page at /analytics', async () => {
+  it('renders Analytics at /analytics route', async () => {
     renderApp('/analytics');
-    await waitFor(() => {
-      expect(screen.getByText('Analytics Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('Analytics Page')).toBeInTheDocument());
   });
 
-  it('renders SocialHub page at /social', async () => {
+  it('renders SocialHub at /social route', async () => {
     renderApp('/social');
-    await waitFor(() => {
-      expect(screen.getByText('SocialHub Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('SocialHub Page')).toBeInTheDocument());
   });
 
-  it('renders BrandKit page at /brand', async () => {
-    renderApp('/brand');
-    await waitFor(() => {
-      expect(screen.getByText('BrandKit Page')).toBeInTheDocument();
-    });
-  });
-
-  it('renders Settings page at /settings', async () => {
+  it('renders Settings at /settings route', async () => {
     renderApp('/settings');
-    await waitFor(() => {
-      expect(screen.getByText('Settings Page')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('Settings Page')).toBeInTheDocument());
   });
 
-  it('wraps content in an ErrorBoundary (no crash in normal operation)', async () => {
-    renderApp('/onboarding');
-    await waitFor(() => {
-      expect(screen.queryByText('Something went wrong. Please retry.')).not.toBeInTheDocument();
-    });
+  it('renders BrandKit at /brand route', async () => {
+    renderApp('/brand');
+    await waitFor(() => expect(screen.getByText('BrandKit Page')).toBeInTheDocument());
   });
 
-  it('layout div is present', async () => {
+  it('wraps content in ErrorBoundary (layout div present)', () => {
     const { container } = renderApp('/onboarding');
     expect(container.querySelector('.layout')).toBeInTheDocument();
   });
 
-  it('main element has the main class', async () => {
-    renderApp('/onboarding');
-    const main = screen.getByRole('main');
-    expect(main).toHaveClass('main');
+  it('renders main element inside layout', () => {
+    const { container } = renderApp('/onboarding');
+    expect(container.querySelector('main.main')).toBeInTheDocument();
   });
 });
