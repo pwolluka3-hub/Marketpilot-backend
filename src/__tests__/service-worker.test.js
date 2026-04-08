@@ -1,195 +1,170 @@
-/**
- * Tests for public/service-worker.js
- *
- * The service worker runs in its own global scope (self).  We simulate that
- * global here so the module can be evaluated in jsdom/Node without a real
- * browser service-worker context.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// ---------------------------------------------------------------------------
-// Minimal service-worker global simulation
-// ---------------------------------------------------------------------------
+/**
+ * Service Worker tests use a simulated SW environment by reconstructing
+ * the logic from public/service-worker.js with mocked global APIs.
+ *
+ * The SW file itself is not an ES module; we simulate its handlers directly.
+ */
 
-function buildSWGlobal() {
-  const listeners = {};
-
-  const self = {
-    addEventListener(event, cb) {
-      listeners[event] = cb;
-    },
-    clients: {
-      matchAll: vi.fn()
-    }
-  };
-
-  // simulate Cache API
-  const cache = {
-    addAll: vi.fn().mockResolvedValue(undefined)
-  };
-
-  const caches = {
-    open: vi.fn().mockResolvedValue(cache),
-    match: vi.fn()
-  };
-
-  return { self, listeners, caches, cache };
-}
-
-// Helper: evaluate the service worker source with a given global context
-async function loadSW(swGlobal) {
-  // Read the source and evaluate it with the custom globals
-  const source = `
 const CACHE_NAME = 'nexusai-shell-v1';
 const APP_SHELL = ['/', '/manifest.json'];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
-  );
-});
-
-self.addEventListener('message', async (event) => {
-  if (event.data?.type === 'RUN_QUEUE_CHECK') {
-    const allClients = await self.clients.matchAll();
-    allClients.forEach((client) => client.postMessage({ type: 'QUEUE_CHECK_TICK' }));
-  }
-});
-`;
-  // eslint-disable-next-line no-new-func
-  const fn = new Function('self', 'caches', 'fetch', source);
-  fn(swGlobal.self, swGlobal.caches, swGlobal.fetch ?? vi.fn());
+function makeInstallHandler(cachesStub) {
+  return (event) => {
+    event.waitUntil(
+      cachesStub.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    );
+  };
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+function makeFetchHandler(cachesStub, fetchStub) {
+  return (event) => {
+    event.respondWith(
+      cachesStub.match(event.request).then((cached) => cached || fetchStub(event.request))
+    );
+  };
+}
 
-describe('service-worker.js', () => {
-  let swGlobal;
+function makeMessageHandler(clientsStub) {
+  return async (event) => {
+    if (event.data?.type === 'RUN_QUEUE_CHECK') {
+      const allClients = await clientsStub.matchAll();
+      allClients.forEach((client) => client.postMessage({ type: 'QUEUE_CHECK_TICK' }));
+    }
+  };
+}
 
-  beforeEach(async () => {
-    swGlobal = buildSWGlobal();
-    await loadSW(swGlobal);
+describe('Service Worker – install event', () => {
+  it('opens the correct cache name', async () => {
+    const mockCache = { addAll: vi.fn().mockResolvedValue(undefined) };
+    const mockCaches = { open: vi.fn().mockResolvedValue(mockCache) };
+
+    const handler = makeInstallHandler(mockCaches);
+    const waitForPromises = [];
+    const event = { waitUntil: (p) => waitForPromises.push(p) };
+
+    handler(event);
+    await Promise.all(waitForPromises);
+
+    expect(mockCaches.open).toHaveBeenCalledWith(CACHE_NAME);
   });
 
-  // --- install event ---
+  it('adds APP_SHELL URLs to the cache', async () => {
+    const mockCache = { addAll: vi.fn().mockResolvedValue(undefined) };
+    const mockCaches = { open: vi.fn().mockResolvedValue(mockCache) };
 
-  it('registers an install event listener', () => {
-    expect(typeof swGlobal.listeners.install).toBe('function');
+    const handler = makeInstallHandler(mockCaches);
+    const waitForPromises = [];
+    const event = { waitUntil: (p) => waitForPromises.push(p) };
+
+    handler(event);
+    await Promise.all(waitForPromises);
+
+    expect(mockCache.addAll).toHaveBeenCalledWith(['/', '/manifest.json']);
   });
 
-  it('opens the correct cache during install', async () => {
+  it('calls event.waitUntil with a promise', () => {
+    const mockCache = { addAll: vi.fn().mockResolvedValue(undefined) };
+    const mockCaches = { open: vi.fn().mockResolvedValue(mockCache) };
     const waitUntil = vi.fn();
-    swGlobal.listeners.install({ waitUntil });
+    const event = { waitUntil };
 
-    // Flush the promise passed to waitUntil
-    const promise = waitUntil.mock.calls[0][0];
-    await promise;
+    makeInstallHandler(mockCaches)(event);
 
-    expect(swGlobal.caches.open).toHaveBeenCalledWith('nexusai-shell-v1');
+    expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(waitUntil.mock.calls[0][0]).toBeInstanceOf(Promise);
   });
-
-  it('caches the app shell entries during install', async () => {
-    const waitUntil = vi.fn();
-    swGlobal.listeners.install({ waitUntil });
-
-    const promise = waitUntil.mock.calls[0][0];
-    await promise;
-
-    expect(swGlobal.cache.addAll).toHaveBeenCalledWith(['/', '/manifest.json']);
-  });
-
-  // --- fetch event ---
-
-  it('registers a fetch event listener', () => {
-    expect(typeof swGlobal.listeners.fetch).toBe('function');
-  });
-
-  it('returns cached response when cache hit occurs', async () => {
-    const cachedResponse = new Response('cached content');
-    swGlobal.caches.match.mockResolvedValue(cachedResponse);
-
-    const respondWith = vi.fn();
-    const request = new Request('https://example.com/');
-    swGlobal.listeners.fetch({ request, respondWith });
-
-    const responsePromise = respondWith.mock.calls[0][0];
-    const response = await responsePromise;
-    expect(response).toBe(cachedResponse);
-  });
-
-  it('falls back to network fetch when cache misses', async () => {
-    swGlobal.caches.match.mockResolvedValue(undefined);
-
-    const networkResponse = new Response('network content');
-    const fetchMock = vi.fn().mockResolvedValue(networkResponse);
-    swGlobal.fetch = fetchMock;
-
-    // Reload SW with the fetch mock in scope
-    const self2 = { ...swGlobal.self, addEventListener: vi.fn() };
-    const newListeners = {};
-    self2.addEventListener = (evt, cb) => { newListeners[evt] = cb; };
-
-    const source = `
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
-  );
 });
-`;
-    // eslint-disable-next-line no-new-func
-    new Function('self', 'caches', 'fetch', source)(self2, swGlobal.caches, fetchMock);
 
+describe('Service Worker – fetch event', () => {
+  it('responds with cached response when cache hit', async () => {
+    const cachedResponse = { status: 200, body: 'cached' };
+    const mockCaches = { match: vi.fn().mockResolvedValue(cachedResponse) };
+    const mockFetch = vi.fn();
+
+    const handler = makeFetchHandler(mockCaches, mockFetch);
+    const respondWithPromises = [];
+    const event = {
+      request: '/manifest.json',
+      respondWith: (p) => respondWithPromises.push(p)
+    };
+
+    handler(event);
+    const result = await respondWithPromises[0];
+
+    expect(result).toBe(cachedResponse);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('falls back to network fetch when cache miss', async () => {
+    const networkResponse = { status: 200, body: 'network' };
+    const mockCaches = { match: vi.fn().mockResolvedValue(null) };
+    const mockFetch = vi.fn().mockResolvedValue(networkResponse);
+
+    const handler = makeFetchHandler(mockCaches, mockFetch);
+    const respondWithPromises = [];
+    const event = {
+      request: '/unknown',
+      respondWith: (p) => respondWithPromises.push(p)
+    };
+
+    handler(event);
+    const result = await respondWithPromises[0];
+
+    expect(result).toBe(networkResponse);
+    expect(mockFetch).toHaveBeenCalledWith('/unknown');
+  });
+
+  it('calls event.respondWith', () => {
+    const mockCaches = { match: vi.fn().mockResolvedValue(null) };
+    const mockFetch = vi.fn().mockResolvedValue({});
     const respondWith = vi.fn();
-    const request = new Request('https://example.com/missing');
-    newListeners.fetch({ request, respondWith });
+    const event = { request: '/', respondWith };
 
-    const response = await respondWith.mock.calls[0][0];
-    expect(response).toBe(networkResponse);
-    expect(fetchMock).toHaveBeenCalledWith(request);
+    makeFetchHandler(mockCaches, mockFetch)(event);
+
+    expect(respondWith).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Service Worker – message event', () => {
+  it('does nothing for unrecognized message types', async () => {
+    const mockClients = { matchAll: vi.fn().mockResolvedValue([]) };
+    const handler = makeMessageHandler(mockClients);
+    await handler({ data: { type: 'OTHER_TYPE' } });
+    expect(mockClients.matchAll).not.toHaveBeenCalled();
   });
 
-  // --- message event ---
-
-  it('registers a message event listener', () => {
-    expect(typeof swGlobal.listeners.message).toBe('function');
+  it('does nothing when event.data is null', async () => {
+    const mockClients = { matchAll: vi.fn() };
+    const handler = makeMessageHandler(mockClients);
+    await handler({ data: null });
+    expect(mockClients.matchAll).not.toHaveBeenCalled();
   });
 
-  it('broadcasts QUEUE_CHECK_TICK to all clients for RUN_QUEUE_CHECK message', async () => {
+  it('broadcasts QUEUE_CHECK_TICK to all clients on RUN_QUEUE_CHECK', async () => {
     const client1 = { postMessage: vi.fn() };
     const client2 = { postMessage: vi.fn() };
-    swGlobal.self.clients.matchAll.mockResolvedValue([client1, client2]);
+    const mockClients = { matchAll: vi.fn().mockResolvedValue([client1, client2]) };
 
-    await swGlobal.listeners.message({ data: { type: 'RUN_QUEUE_CHECK' } });
+    const handler = makeMessageHandler(mockClients);
+    await handler({ data: { type: 'RUN_QUEUE_CHECK' } });
 
     expect(client1.postMessage).toHaveBeenCalledWith({ type: 'QUEUE_CHECK_TICK' });
     expect(client2.postMessage).toHaveBeenCalledWith({ type: 'QUEUE_CHECK_TICK' });
   });
 
-  it('does not call clients.matchAll for unrecognised message types', async () => {
-    await swGlobal.listeners.message({ data: { type: 'UNKNOWN' } });
-    expect(swGlobal.self.clients.matchAll).not.toHaveBeenCalled();
+  it('calls clients.matchAll when type is RUN_QUEUE_CHECK', async () => {
+    const mockClients = { matchAll: vi.fn().mockResolvedValue([]) };
+    const handler = makeMessageHandler(mockClients);
+    await handler({ data: { type: 'RUN_QUEUE_CHECK' } });
+    expect(mockClients.matchAll).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call clients.matchAll when event.data is null', async () => {
-    await swGlobal.listeners.message({ data: null });
-    expect(swGlobal.self.clients.matchAll).not.toHaveBeenCalled();
-  });
-
-  it('does not call clients.matchAll when event.data is undefined', async () => {
-    await swGlobal.listeners.message({ data: undefined });
-    expect(swGlobal.self.clients.matchAll).not.toHaveBeenCalled();
-  });
-
-  it('handles RUN_QUEUE_CHECK with zero connected clients', async () => {
-    swGlobal.self.clients.matchAll.mockResolvedValue([]);
-    await expect(
-      swGlobal.listeners.message({ data: { type: 'RUN_QUEUE_CHECK' } })
-    ).resolves.not.toThrow();
+  it('handles RUN_QUEUE_CHECK with zero clients gracefully', async () => {
+    const mockClients = { matchAll: vi.fn().mockResolvedValue([]) };
+    const handler = makeMessageHandler(mockClients);
+    await expect(handler({ data: { type: 'RUN_QUEUE_CHECK' } })).resolves.toBeUndefined();
   });
 });
