@@ -1,0 +1,39 @@
+:root {
+  --bg-primary: #080b14;
+  --bg-glass: rgba(255, 255, 255, 0.04);
+  --cyan: #00f5ff;
+  --violet: #bf5fff;
+  --success: #00ff87;
+  --warning: #ffb800;
+  --error: #ff3b5c;
+  --border: rgba(0, 245, 255, 0.15);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: #e8f7ff;
+}
+.glass-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 1rem;
+}
+.neon-button {
+  background: linear-gradient(90deg, var(--cyan), var(--violet));
+  border: none;
+  color: #031219;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.neon-button:hover { box-shadow: 0 0 20px var(--cyan); }
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.main { padding: 1rem; }
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; padding-bottom: 72px; }
+}
